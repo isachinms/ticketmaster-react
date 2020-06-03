@@ -1,5 +1,5 @@
 import React from 'react'
-import { BrowserRouter, Route, Link, Switch } from 'react-router-dom'
+import { BrowserRouter, Route, Link, Switch, Redirect } from 'react-router-dom'
 
 import Welcome from './components/static/Welcome'
 import Login from './components/auth/Login'
@@ -25,43 +25,65 @@ import AddTicket from './components/tickets/Add'
 import ShowTicket from './components/tickets/Show'
 import EditTicket from './components/tickets/Edit'
 
+const ProtectedRoute = ({ component: Component, ...rest}) => {
+    const isAuthenticated = localStorage.getItem('authToken')
+    return (
+        <Route {...rest} 
+            render={props => (
+                isAuthenticated ? <Component {...props} /> : <Redirect to={{ pathname: '/login', state: { from: props.location}}} />
+            )}
+        />
+    )
+}
+
 function App() {
+    const isAuthenticated = localStorage.getItem('authToken')
     return (
         <BrowserRouter>
         <div>
-            <Link to="/" >Home </Link>
-            <Link to="/customers">Customers </Link>
-            <Link to="/departments">Departments </Link>
-            <Link to="/employees">Employees </Link>
-            <Link to="/tickets">Tickets </Link>
-            <Link to="/login">Login </Link>
-            <Link to="/register">Register </Link>
-            <Link to="/logout">Logout </Link>
+            { isAuthenticated ? (
+                <div>
+                    <Link to="/" >Home </Link>
+                    <Link to="/customers">Customers </Link>
+                    <Link to="/departments">Departments </Link>
+                    <Link to="/employees">Employees </Link>
+                    <Link to="/tickets">Tickets </Link>
+                    <Link to="/logout">Logout </Link>
+                </div> ) : (
+                    <div>
+                        <Link to="/" >Home </Link>
+                        <Link to="/login">Login </Link>
+                        <Link to="/register">Register </Link>
+                    </div>
+                )
+            }
 
             <Switch>
             <Route path="/" component={Welcome} exact/>
-            <Route path="/login" component={Login} />
-            <Route path="/register" component={Register} />
-            <Route path="/logout" component={Logout} />
+            <Route path="/login" component={Login} exact/>
+            <Route path="/register" component={Register} exact/>
+            <ProtectedRoute path="/logout" component={Logout} exact/>
 
-            <Route path="/customers" component={CustomersTable} exact/>
-            <Route path="/customers/new" component={AddCustomer} />
-            <Route path="/customers/edit/:id" component={EditCustomer} />
-            <Route path="/customers/:id" component={ShowCustomer} />
+            <ProtectedRoute path="/customers" component={CustomersTable} exact/>
+            <ProtectedRoute path="/customers/new" component={AddCustomer} exact/>
+            <ProtectedRoute path="/customers/edit/:id" component={EditCustomer} exact/>
+            <ProtectedRoute path="/customers/:id" component={ShowCustomer} exact/>
 
-            <Route path="/departments" component={DepartmentsList} exact/>
-            <Route path="/departments/edit/:id" component={EditDepartment} />
-            <Route path="/departments/:id" component={ShowDepartment} />
+            <ProtectedRoute path="/departments" component={DepartmentsList} exact/>
+            <ProtectedRoute path="/departments/edit/:id" component={EditDepartment} exact/>
+            <ProtectedRoute path="/departments/:id" component={ShowDepartment} exact/>
 
-            <Route path="/employees" component={EmployeeTable} exact/>
-            <Route path="/employees/new" component={AddEmployee} />
-            <Route path="/employees/edit/:id" component={EditEmployee} />
-            <Route path="/employees/:id" component={ShowEmployee} />
+            <ProtectedRoute path="/employees" component={EmployeeTable} exact/>
+            <ProtectedRoute path="/employees/new" component={AddEmployee} exact/>
+            <ProtectedRoute path="/employees/edit/:id" component={EditEmployee} exact/>
+            <ProtectedRoute path="/employees/:id" component={ShowEmployee} exact/>
 
-            <Route path="/tickets" component={TicketsList} exact />
-            <Route path="/tickets/new" component={AddTicket} />
-            <Route path="/tickets/edit/:id" component={EditTicket} />
-            <Route path="/tickets/:id" component={ShowTicket} />
+            <ProtectedRoute path="/tickets" component={TicketsList} exact />
+            <ProtectedRoute path="/tickets/new" component={AddTicket} exact/>
+            <ProtectedRoute path="/tickets/edit/:id" component={EditTicket} exact/>
+            <ProtectedRoute path="/tickets/:id" component={ShowTicket} exact/>
+
+            <Route path="*" component={() => <div>404 : Page Not Found</div>} />
             </Switch>
         </div>
         </BrowserRouter>

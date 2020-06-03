@@ -26,10 +26,12 @@ class Login extends React.Component {
                     alert(response.data.error)
                 } else {
                     const { token } = response.data
+                    const refLocation = this.props.history.location.state
                     localStorage.setItem('authToken', token)
                     this.setState({ email: '', password: ''})
                     alert('Login Successful')
-                    this.props.history.push('/customers')
+                    refLocation ? this.props.history.push(refLocation.from) : this.props.history.push('/customers') 
+                    window.location.reload()
                 }
             })
             .catch((err) => {

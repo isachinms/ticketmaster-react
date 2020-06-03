@@ -1,6 +1,6 @@
 import React from 'react'
 
-function Welcome() {
+const Welcome = () => {
     return (
         <p>Welcome to Ticket Master Application</p>
     )
